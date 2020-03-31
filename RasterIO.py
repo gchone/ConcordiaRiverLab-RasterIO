@@ -1,47 +1,47 @@
 # coding: latin-1
 
 #####################################################
-# Guénolé Choné
+# GuÃ©nolÃ© ChonÃ©
 # Concordia University
 # Geography, Planning and Environment Department
 # guenole.chone@concordia.ca
 #####################################################
 
 # Versions
-# v1.0 - Mars 2017 - Création
-# v1.1 - Juillet 2018 - Utilisation d'un processus indépendant pour enregistrer les rasters, fusion avec RasterIOXL,
-#   modification des noms de raster créés, débogage utilisation avec raster source
+# v1.0 - Mars 2017 - CrÃ©ation
+# v1.1 - Juillet 2018 - Utilisation d'un processus indÃ©pendant pour enregistrer les rasters, fusion avec RasterIOXL,
+#   modification des noms de raster crÃ©Ã©s, dÃ©bogage utilisation avec raster source
 # v1.2 - Juillet 2018 - Debogage
 
 
-# Ce code est une bibliothèque générale pour la gestion des matrices (rasters)
+# Ce code est une bibliothÃ¨que gÃ©nÃ©rale pour la gestion des matrices (rasters)
 
-# Référence:
-# Ce code a été créé à partir du code exemple fourni avec l'aide de NumPyArrayToRaster:
+# RÃ©fÃ©rence:
+# Ce code a Ã©tÃ© crÃ©Ã© Ã  partir du code exemple fourni avec l'aide de NumPyArrayToRaster:
 # http://desktop.arcgis.com/fr/arcmap/10.4/analyze/arcpy-functions/numpyarraytoraster-function.htm
 
-# La classe RasterIO permet de gérer les opérations de lecture et d'écriture sur les objects de type Raster par les fonctions suivantes:
+# La classe RasterIO permet de gÃ©rer les opÃ©rations de lecture et d'Ã©criture sur les objects de type Raster par les fonctions suivantes:
 #  - getValue(row, col) : permet de lire la valeur d'une cellule du raster
 #  - setValue(row, col, value) : permet d'enregistrer la valeur d'une cellule du raster
-#  - save() : enregistre dans le fichier désigné les modifications apportées par la fonction setValue
-# RasterIO peut etre utilisé pour gérer un fichier existant (pour y lire ou y écrire des données), ou bien pour créer un nouveau raster
-# Dans le premier cas, seul le paramètre "raster" (object de type Raster) doit être fourni au constructeur
-# Dans le dernier cas, les paramètres suivants doivent être fournis au constructeur:
-#  - "raster" (object de type Raster) : Raster utilisé comme modèle pour le nouveau raster à créer.
-# Le nouveau raster couvrira la même zone, avec la même résolution, et aura le même système de coordonnées, que le raster utilisé comme modèle
-#  - "fileout" (chaîne) : chemin complet et nom du fichier à créer
-#  - "dtype" : peut être mis à "int" ou "float". Type de données pour le raster à créer.
-#  - "default" : valeur par défaut (valeur de "NoData") utilisée pour le raster
+#  - save() : enregistre dans le fichier dÃ©signÃ© les modifications apportÃ©es par la fonction setValue
+# RasterIO peut etre utilisÃ© pour gÃ©rer un fichier existant (pour y lire ou y Ã©crire des donnÃ©es), ou bien pour crÃ©er un nouveau raster
+# Dans le premier cas, seul le paramÃ¨tre "raster" (object de type Raster) doit Ãªtre fourni au constructeur
+# Dans le dernier cas, les paramÃ¨tres suivants doivent Ãªtre fournis au constructeur:
+#  - "raster" (object de type Raster) : Raster utilisÃ© comme modÃ¨le pour le nouveau raster Ã  crÃ©er.
+# Le nouveau raster couvrira la mÃªme zone, avec la mÃªme rÃ©solution, et aura le mÃªme systÃ¨me de coordonnÃ©es, que le raster utilisÃ© comme modÃ¨le
+#  - "fileout" (chaÃ®ne) : chemin complet et nom du fichier Ã  crÃ©er
+#  - "dtype" : peut Ãªtre mis Ã  "int" ou "float". Type de donnÃ©es pour le raster Ã  crÃ©er.
+#  - "default" : valeur par dÃ©faut (valeur de "NoData") utilisÃ©e pour le raster
 
-# RasterIO fournit également les fonctions utilitaires suivantes:
-#  - checkMatch(other_RasterIO) : permet de s'assurer que deux rasters couvrent la même zone avec la même résolution
-#  - XtoCol, YtoRow, ColtoX et RowtoY : permettent de convertir des coordonnées en une position dans la matrice, et inversement
+# RasterIO fournit Ã©galement les fonctions utilitaires suivantes:
+#  - checkMatch(other_RasterIO) : permet de s'assurer que deux rasters couvrent la mÃªme zone avec la mÃªme rÃ©solution
+#  - XtoCol, YtoRow, ColtoX et RowtoY : permettent de convertir des coordonnÃ©es en une position dans la matrice, et inversement
 
 # RasterIOfull fonctionne sur les principes suivants:
-#  - Lorsqu'une première valeur est lue dans le raster, seule une section du raster est chargée en mémoire (de taille blocksize), centrée sur la cellule interrogée
-#  - Cette section n'est changée que lorsqu'on souhaite lire une valeur en dehors
-#  - Les modification faites au raster sont conservées en mémoire (au lieu d'être écrites immédiatement sur le disque)
-#  - Si la quantité de modification devient trop volumineuse, celles-ci sont alors enregistrées sur le disque
+#  - Lorsqu'une premiÃ¨re valeur est lue dans le raster, seule une section du raster est chargÃ©e en mÃ©moire (de taille blocksize), centrÃ©e sur la cellule interrogÃ©e
+#  - Cette section n'est changÃ©e que lorsqu'on souhaite lire une valeur en dehors
+#  - Les modification faites au raster sont conservÃ©es en mÃ©moire (au lieu d'Ãªtre Ã©crites immÃ©diatement sur le disque)
+#  - Si la quantitÃ© de modification devient trop volumineuse, celles-ci sont alors enregistrÃ©es sur le disque
 
 
 
@@ -50,7 +50,7 @@ import subprocess, sys, binascii
 
 class RasterIO:
 
-    # Lignes à modifier pour utiliser la gestion simple des raster (RasterIOlight, plus rapide) ou la gestion des rasters
+    # Lignes Ã  modifier pour utiliser la gestion simple des raster (RasterIOlight, plus rapide) ou la gestion des rasters
     #  de grande taille (RasterIOfull)
     __managerclass = "RasterIOfull"
     #__managerclass = "RasterIOlight"
@@ -70,7 +70,7 @@ class RasterIO:
             round(self.raster.extent.YMax, 3) != round(other_rasterIO.raster.extent.YMax, 3) or
             self.raster.height != other_rasterIO.raster.height or
             self.raster.width != other_rasterIO.raster.width):
-            raise Exception("Les rasters d'entrée doivent couvrir des zones similaires et être de même résolution")
+            raise Exception("Les rasters d'entrÃ©e doivent couvrir des zones similaires et Ãªtre de mÃªme rÃ©solution")
 
     def XtoCol(self, X):
         return int(math.floor((X - self.rasterlike.extent.XMin) / self.rasterlike.meanCellWidth))
@@ -130,7 +130,7 @@ class RasterIOlight:
 
 class RasterIOfull:
 
-    # Taille des rasters en mémoire. À modifier selon la mémoire disponible
+    # Taille des rasters en mÃ©moire. Ã€ modifier selon la mÃ©moire disponible
     blocksize = 4096
 
     def __init__(self, raster, fileout=None, dtype = int, default = -255):
@@ -164,19 +164,19 @@ class RasterIOfull:
         # En dehors du raster
         if row <0 or col <0 or row >= self.rasterlike.height or col>=self.rasterlike.width:
             return self.nodata
-        # La valeur a été changée en buffer
+        # La valeur a Ã©tÃ© changÃ©e en buffer
         if row in self.dict.keys():
             if col in self.dict[row].keys():
                 return self.dict[row][col]
-        # Pas de raster d'enregistré et la valeur n'est pas en buffer
+        # Pas de raster d'enregistrÃ© et la valeur n'est pas en buffer
         if self.raster is None:
             return self.nodata
 
 
 
-        # Raster enregistré mais valeur pas dans le block
+        # Raster enregistrÃ© mais valeur pas dans le block
         if self.block is None or col < self.xblock or col >= self.xblock + self.blocksize or row < self.yblock or row >= self.yblock + self.blocksize:
-            # Charger un nouveau block en mémoire
+            # Charger un nouveau block en mÃ©moire
             del self.block
             # Upper left coordinate of block (in cells)
             self.xblock = max(0, col - self.blocksize/2)
