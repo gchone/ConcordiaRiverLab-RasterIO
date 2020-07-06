@@ -180,8 +180,8 @@ class RasterIOfull:
             # Charger un nouveau block en mémoire
             del self.block
             # Upper left coordinate of block (in cells)
-            self.xblock = max(0, col - self.blocksize/2)
-            self.yblock = max(0, row - self.blocksize/2)
+            self.xblock = max(0, col - math.floor(self.blocksize/2))
+            self.yblock = max(0, row - math.floor(self.blocksize/2))
             # Lower left coordinate of block (in map units)
             mx = self.raster.extent.XMin + self.xblock*self.raster.meanCellWidth
             my = max(self.raster.extent.YMin, self.raster.extent.YMax - (self.blocksize + self.yblock)*self.raster.meanCellHeight)
@@ -190,7 +190,6 @@ class RasterIOfull:
             ly = min([self.yblock + self.blocksize, self.raster.height])
 
             self.block = arcpy.RasterToNumPyArray(self.raster, arcpy.Point(mx, my), lx - self.xblock, ly - self.yblock, self.nodata)
-            print self.block.shape
 
 
 
@@ -226,7 +225,7 @@ class RasterIOfull:
         filelist = []
         blockno = 0
         randomname = binascii.hexlify(os.urandom(6))
-        picklefilename = arcpy.env.scratchWorkspace + "\\" + randomname + ".pkl"
+        picklefilename = arcpy.env.scratchWorkspace + "\\" + str(randomname) + ".pkl"
         pickledict = open(picklefilename, 'wb')
         pickle.dump(self.dict, pickledict)
         pickledict.close()
@@ -236,7 +235,7 @@ class RasterIOfull:
 
                 # Save on disk with a random name
                 randomname = binascii.hexlify(os.urandom(6))
-                filetemp = arcpy.env.scratchWorkspace + "\\" + randomname
+                filetemp = arcpy.env.scratchWorkspace + "\\" + str(randomname)
                 if self.raster is not None:
                     startcmd = "python.exe \""+sys.path[0].encode('utf-8')+"\\RasterIO.py\"" \
                                + " -rasterlike \"" + self.rasterlike.catalogPath.encode('utf-8') + "\""\
