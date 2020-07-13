@@ -14,6 +14,7 @@
 # v1.2 - Juillet 2018 - Debogage
 # v1.3 - Août 2019 - Dégogage
 # v1.3.1 - Septembre 2019 - Dégogage: Décalage de 1 pixel pour les versions ArcGIS 1.6(?) ou sup.
+# v1.4 - Juillet 2020 - Compatibilité ArcGIS PRO (RasterIOlight uniquement)
 
 # Ce code est une bibliothèque générale pour la gestion des matrices (rasters)
 
@@ -53,8 +54,8 @@ class RasterIO:
 
     # Lignes à modifier pour utiliser la gestion simple des raster (RasterIOlight, plus rapide) ou la gestion des rasters
     #  de grande taille (RasterIOfull)
-    __managerclass = "RasterIOfull"
-    #__managerclass = "RasterIOlight"
+    #__managerclass = "RasterIOfull"
+    __managerclass = "RasterIOlight"
 
 
     def __init__(self, raster, fileout=None, dtype=int, default=-255):
@@ -224,7 +225,7 @@ class RasterIOfull:
         # Loop over data blocks
         filelist = []
         blockno = 0
-        randomname = binascii.hexlify(os.urandom(6))
+        randomname = binascii.hexlify(os.urandom(6)).decode()
         picklefilename = arcpy.env.scratchWorkspace + "\\" + str(randomname) + ".pkl"
         pickledict = open(picklefilename, 'wb')
         pickle.dump(self.dict, pickledict)
@@ -234,36 +235,39 @@ class RasterIOfull:
             for y in range(0, self.rasterlike.height, self.blocksize):
 
                 # Save on disk with a random name
-                randomname = binascii.hexlify(os.urandom(6))
+                randomname = binascii.hexlify(os.urandom(6)).decode()
                 filetemp = arcpy.env.scratchWorkspace + "\\" + str(randomname)
                 if self.raster is not None:
-                    startcmd = "python.exe \""+sys.path[0].encode('utf-8')+"\\RasterIO.py\"" \
-                               + " -rasterlike \"" + self.rasterlike.catalogPath.encode('utf-8') + "\""\
+                    startcmd = "python.exe \""+sys.path[0]+"\\RasterIO.py\"" \
+                               + " -rasterlike \"" + self.rasterlike.catalogPath + "\""\
                                + " -x " + str(x) \
                                + " -y " + str(y) \
                                + " -blocksize " + str(self.blocksize) \
-                               + " -blockname \"" + str(filetemp)  + "\""\
+                               + " -blockname \"" + str(filetemp) + "\""\
                                + " -nodata " + str(self.nodata) \
                                + " -dtype " + str(self.dtype.__name__) \
-                               + " -pickledict \"" + picklefilename.encode('utf-8') + "\""\
-                               + " -raster \"" + self.raster.catalogPath.encode('utf-8') + "\""
+                               + " -pickledict \"" + picklefilename + "\""\
+                               + " -raster \"" + self.raster.catalogPath + "\""
                 else:
-                    startcmd = "python.exe \""+sys.path[0].encode('utf-8')+"\\RasterIO.py\"" \
-                               + " -rasterlike \"" + self.rasterlike.catalogPath.encode('utf-8') + "\""\
+                    startcmd = "python.exe \""+sys.path[0]+"\\RasterIO.py\"" \
+                               + " -rasterlike \"" + self.rasterlike.catalogPath + "\""\
                                + " -x " + str(x) \
                                + " -y " + str(y) \
                                + " -blocksize " + str(self.blocksize) \
-                               + " -blockname \"" + str(filetemp)  + "\""\
+                               + " -blockname \"" + str(filetemp) + "\""\
                                + " -nodata " + str(self.nodata) \
                                + " -dtype " + str(self.dtype.__name__) \
-                               + " -pickledict \"" + picklefilename.encode('utf-8') + "\""
+                               + " -pickledict \"" + picklefilename + "\""
 
                 FNULL = open(os.devnull, 'w')
                 si = subprocess.STARTUPINFO()
                 si.dwFlags = subprocess.STARTF_USESHOWWINDOW
                 si.wShowWindow = subprocess.SW_HIDE
-                subprocess.check_call(startcmd, startupinfo=si, stdout=FNULL, stderr=subprocess.STDOUT)
-
+                # Syntax difference for Python 3 (ArcGIS PRO) and Python 2 (ArcGIS Desktop)
+                if sys.version_info.major == 3:
+                    subprocess.check_call(startcmd, startupinfo=si, stdout=FNULL, stderr=subprocess.STDOUT, encoding='utf8')
+                if sys.version_info.major == 2:
+                    subprocess.check_call(startcmd.encode('utf-8'), startupinfo=si, stdout=FNULL, stderr=subprocess.STDOUT)
                 # Maintain a list of saved temporary files
                 filelist.append(filetemp)
                 blockno += 1
